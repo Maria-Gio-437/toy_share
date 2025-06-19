@@ -48,3 +48,18 @@ def get_user_by_id(user_id):
     finally:
         if conn:
             conn.close()
+
+def get_user_by_email(email):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Desta vez, selecionamos a senha também!
+        cursor.execute("SELECT * FROM Usuario WHERE email = ?", (email,))
+        usuario = cursor.fetchone()
+        if usuario:
+            return dict(usuario)
+        return None
+    finally:
+        if conn:
+            conn.close()
