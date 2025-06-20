@@ -115,3 +115,33 @@ def add_toys_to_donation(doacao_id, brinquedos_data):
     finally:
         if conn:
             conn.close()
+
+def delete_donation(doacao_id):
+    """Exclui uma doação e todos os brinquedos associados a ela."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        
+        # Iniciamos uma transação para garantir que ambas as operações (excluir brinquedos e doação)
+        # sejam concluídas com sucesso.
+        cursor.execute('BEGIN')
+
+        # Primeiro, deletamos todos os brinquedos que pertencem a esta doação
+        cursor.execute('DELETE FROM brinquedo WHERE doacao_id = ?', (doacao_id,))
+
+        # Depois, deletamos a própria doação
+        cursor.execute('DELETE FROM doacao WHERE id = ?', (doacao_id,))
+        
+        # Confirma a transação
+        conn.commit()
+        
+        # Retorna o número de doações deletadas (deve ser 1 se tudo deu certo)
+        return cursor.rowcount
+    except Exception as e:
+        # Se ocorrer um erro, reverte todas as alterações
+        conn.rollback()
+        print(f"Erro ao deletar doação: {e}")
+        # Lança o erro novamente para que a rota possa tratá-lo
+        raise e
+    finally:
+        conn.close()

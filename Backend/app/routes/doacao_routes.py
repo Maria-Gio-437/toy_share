@@ -64,3 +64,32 @@ def adicionar_brinquedos_a_doacao(current_user, doacao_id):
     except Exception as e:
         return jsonify({'erro': f'Ocorreu um erro ao adicionar os brinquedos: {e}'}), 500
     
+@doacoes_bp.route('/doacoes/<int:doacao_id>', methods=['DELETE'])
+@token_required
+def delete_doacao(current_user, doacao_id):
+    """
+    Rota para excluir uma doação.
+    Apenas o usuário que criou a doação pode excluí-la.
+    """
+    try:
+        # Primeiro, buscamos a doação para verificar se ela existe e quem é o proprietário
+        doacao = doacao_model.get_donation_by_id(doacao_id)
+
+        if not doacao:
+            return jsonify({'error': 'Doação não encontrada'}), 404
+
+        # Verificação de segurança: o ID do usuário do token deve ser o mesmo do 'usuario_id' da doação
+        if doacao['usuario_id'] != current_user['id']:
+            return jsonify({'error': 'Ação não autorizada. Você não é o proprietário desta doação.'}), 403
+
+        # Se a verificação passar, prosseguimos com a exclusão
+        rows_affected = doacao_model.delete_donation(doacao_id)
+
+        if rows_affected > 0:
+            return jsonify({'message': 'Doação e brinquedos associados foram excluídos com sucesso'}), 200
+        else:
+            # Isso pode acontecer se a doação foi deletada por outra requisição entre as verificações
+            return jsonify({'error': 'Doação não encontrada para exclusão'}), 404
+
+    except Exception as e:
+        return jsonify({'error': f'Ocorreu um erro no servidor: {e}'}), 500
