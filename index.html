@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doações de Brinquedos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.14/dist/antd.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/react@17/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.2/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-router-dom@5.3.4/umd/react-router-dom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/antd@4.24.14/dist/antd.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    // Nota: O aviso sobre o uso do Babel no navegador é esperado em ambiente de desenvolvimento
+    // com @babel/standalone. Para produção, considere pré-compilar o JSX para JavaScript puro
+    // usando um pipeline de build (ex.: Webpack, Babel CLI). Veja: https://babeljs.io/docs/setup/
+    const { useState, useContext, createContext } = React;
+    const { HashRouter, Route, Switch, useHistory, Redirect } = ReactRouterDOM;
+    const { Form, Input, Button, List, Card, message } = antd;
+
+    // Contexto para gerenciar doações
+    const DoacoesContext = createContext();
+
+    const DoacoesProvider = ({ children }) => {
+      const [doacoes, setDoacoes] = useState([]);
+
+      const adicionarDoacao = (doacao) => {
+        setDoacoes([...doacoes, { ...doacao, id: Date.now() }]);
+        message.success('Doação adicionada com sucesso!');
+      };
+
+      const removerDoacao = (id) => {
+        setDoacoes(doacoes.filter((doacao) => doacao.id !== id));
+        message.success('Doação removida com sucesso!');
+      };
+
+      return (
+        <DoacoesContext.Provider value={{ doacoes, adicionarDoacao, removerDoacao }}>
+          {children}
+        </DoacoesContext.Provider>
+      );
+    };
+
+    // Componente da Tela de Login
+    const Login = () => {
+      const history = useHistory();
+
+      const onFinish = (values) => {
+        console.log('Login:', values);
+        history.push('/doacoes');
+      };
+
+      return (
+        <div style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
+          <h1>Login</h1>
+          <Form name="login" onFinish={onFinish}>
+            <Form.Item
+              name="email"
+              rules={[{ required: true, message: 'Por favor, insira seu email!' }]}
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
+            <Form.Item
+              name="senha"
+              rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}
+            >
+              <Input.Password placeholder="Senha" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Login
+              </Button>
+              <Button type="link" onClick={() => history.push('/cadastro')}>
+                Cadastre-se
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      );
+    };
+
+    // Componente da Tela de Cadastro
+    const Cadastro = () => {
+      const history = useHistory();
+
+      const onFinish = (values) => {
+        console.log('Cadastro:', values);
+        message.success('Cadastro realizado com sucesso!');
+        history.push('/login');
+      };
+
+      return (
+        <div style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
+          <h1>Cadastro</h1>
+          <Form name="cadastro" onFinish={onFinish}>
+            <Form.Item
+              name="email"
+              rules={[{ required: true, message: 'Por favor, insira seu email!' }]}
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
+            <Form.Item
+              name="senha"
+              rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}
+            >
+              <Input.Password placeholder="Senha" />
+            </Form.Item>
+            <Form.Item
+              name="endereco"
+              rules={[{ required: true, message: 'Por favor, insira seu endereço!' }]}
+            >
+              <Input placeholder="Endereço" />
+            </Form.Item>
+            <Form.Item
+              name="telefone"
+              rules={[{ required: true, message: 'Por favor, insira seu telefone!' }]}
+            >
+              <Input placeholder="Telefone" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Cadastrar
+              </Button>
+              <Button type="link" onClick={() => history.push('/login')}>
+                Voltar ao Login
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      );
+    };
+
+    // Componente da Tela de Doações
+    const Doacoes = () => {
+      const { doacoes, adicionarDoacao, removerDoacao } = useContext(DoacoesContext);
+
+      const onFinish = (values) => {
+        adicionarDoacao(values);
+      };
+
+      return (
+        <div style={{ padding: '50px' }}>
+          <h1>Doações de Brinquedos</h1>
+          <Form name="doacao" onFinish={onFinish} style={{ maxWidth: '600px', marginBottom: '20px' }}>
+            <Form.Item
+              name="titulo"
+              rules={[{ required: true, message: 'Por favor, insira o título!' }]}
+            >
+              <Input placeholder="Título" />
+            </Form.Item>
+            <Form.Item
+              name="descricao"
+              rules={[{ required: true, message: 'Por favor, insira a descrição!' }]}
+            >
+              <Input placeholder="Descrição" />
+            </Form.Item>
+            <Form.Item
+              name="nome"
+              rules={[{ required: true, message: 'Por favor, insira o nome do brinquedo!' }]}
+            >
+              <Input placeholder="Nome do Brinquedo" />
+            </Form.Item>
+            <Form.Item
+              name="descricaoBrinquedo"
+              rules={[{ required: true, message: 'Por favor, insira a descrição do brinquedo!' }]}
+            >
+              <Input placeholder="Descrição do Brinquedo" />
+            </Form.Item>
+            <Form.Item
+              name="foto_url"
+              rules={[{ required: true, message: 'Por favor, insira a URL da foto!' }]}
+            >
+              <Input placeholder="URL da Foto" />
+            </Form.Item>
+            <Form.Item
+              name="qtd_ofertada"
+              rules={[{ required: true, message: 'Por favor, insira a quantidade ofertada!' }]}
+            >
+              <Input placeholder="Quantidade Ofertada" type="number" />
+            </Form.Item>
+            <Form.Item
+              name="categoria"
+              rules={[{ required: true, message: 'Por favor, insira a categoria!' }]}
+            >
+              <Input placeholder="Categoria" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Adicionar Doação
+              </Button>
+            </Form.Item>
+          </Form>
+          <List
+            grid={{ gutter: 16, column: 3 }}
+            dataSource={doacoes}
+            renderItem={(doacao) => (
+              <List.Item>
+                <Card title={doacao.titulo}>
+                  <p>{doacao.desdescricao}</p>
+                  <p>Brinquedo: {doacao.nome}</p>
+                  <p>Descrição: {doacao.descricaoBrinquedo}</p>
+                  <p>Quantidade: {doacao.qtd_ofertada}</p>
+                  <p>Categoria: {doacao.categoria}</p>
+                  <img
+                    src={doacao.foto_url}
+                    alt="Foto do brinquedo"
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                    onError={(e) => (e.target.src = 'https://via.placeholder.com/150')}
+                  />
+                  <Button
+                    type="danger"
+                    style={{ marginTop: '10px' }}
+                    onClick={() => removerDoacao(doacao.id)}
+                  >
+                    Remover
+                  </Button>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
+      );
+    };
+
+    // Componente Principal
+    const App = () => {
+      try {
+        return (
+          <DoacoesProvider>
+            <HashRouter>
+              <Switch>
+                <Route path="/login" exact component={Login} />
+                <Route path="/cadastro" exact component={Cadastro} />
+                <Route path="/doacoes" exact component={Doacoes} />
+                <Route path="/" exact component={Login} />
+                <Redirect to="/" />
+              </Switch>
+            </HashRouter>
+          </DoacoesProvider>
+        );
+      } catch (error) {
+        console.error('Erro ao renderizar App:', error);
+        return <div>Erro ao carregar a aplicação. Veja o console para detalhes.</div>;
+      }
+    };
+
+    // Renderização com tratamento de erro
+    try {
+      ReactDOM.render(<App />, document.getElementById('root'));
+    } catch (error) {
+      console.error('Erro ao renderizar:', error);
+      document.getElementById('root').innerHTML = '<div>Erro ao carregar a aplicação. Veja o console para detalhes.</div>';
+    }
+  </script>
+</body>
+</html>
