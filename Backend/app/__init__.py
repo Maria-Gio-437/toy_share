@@ -9,6 +9,9 @@ def create_app():
     from .routes.usuario_routes import usuarios_bp
     app.register_blueprint(usuarios_bp, url_prefix='/api')
 
+    from .routes.doacao_routes import doacoes_bp
+    app.register_blueprint(doacoes_bp, url_prefix='/api')
+
     @app.route('/health')
     def health_check():
         return "API está funcionando!"
