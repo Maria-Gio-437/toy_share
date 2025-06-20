@@ -16,7 +16,7 @@ try:
     connection = sqlite3.connect(DATABASE_URL)
 
     # Abre e lê o arquivo de schema
-    with open(SCHEMA_URL) as f:
+    with open(SCHEMA_URL, encoding='utf-8') as f:
         connection.executescript(f.read())
 
     print("Banco de dados criado e tabelas inicializadas com sucesso!")

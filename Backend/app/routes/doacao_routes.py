@@ -64,29 +64,3 @@ def adicionar_brinquedos_a_doacao(current_user, doacao_id):
     except Exception as e:
         return jsonify({'erro': f'Ocorreu um erro ao adicionar os brinquedos: {e}'}), 500
     
-@doacoes_bp.route('/doacoes/<int:doacao_id>/brinquedos', methods=['POST'])
-@token_required # Rota protegida
-def adicionar_brinquedos_a_doacao(current_user, doacao_id):
-    """
-    Endpoint para adicionar um ou mais brinquedos a uma doação existente.
-    """
-    # 1. Verificar se a doação existe
-    doacao = doacao_model.get_donation_by_id(doacao_id)
-    if not doacao:
-        return jsonify({'erro': 'Doação não encontrada.'}), 404
-
-    # 2. Verificar se o usuário logado é o dono da doação
-    if doacao['usuario_id'] != current_user['id']:
-        return jsonify({'erro': 'Acesso negado. Você não é o dono desta doação.'}), 403 # 403 Forbidden
-
-    # 3. Pegar os dados dos novos brinquedos da requisição
-    dados = request.get_json()
-    if not dados or 'brinquedos' not in dados or not isinstance(dados['brinquedos'], list) or not dados['brinquedos']:
-        return jsonify({'erro': 'Dados inválidos. É necessário fornecer uma lista de brinquedos.'}), 400
-
-    # 4. Chamar o modelo para adicionar os brinquedos
-    try:
-        doacao_model.add_toys_to_donation(doacao_id, dados['brinquedos'])
-        return jsonify({'mensagem': 'Brinquedos adicionados com sucesso à doação!'}), 200 # 200 OK
-    except Exception as e:
-        return jsonify({'erro': f'Ocorreu um erro ao adicionar os brinquedos: {e}'}), 500

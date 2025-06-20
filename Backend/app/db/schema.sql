@@ -1,12 +1,38 @@
--- CRIAÇÃO DA TABELA USUÁRIOS --
+-- DELETA AS TABELAS ANTIGAS SE ELAS EXISTIREM
+DROP TABLE IF EXISTS Brinquedo;
+DROP TABLE IF EXISTS Doacao;
 DROP TABLE IF EXISTS Usuario;
 
+-- CRIAÇÃO DA TABELA USUÁRIOS
 CREATE TABLE usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome_completo TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     senha TEXT NOT NULL,
-    telefone TEXT,      -- Campo opcional (pode ser NULL)
-    endereco TEXT,      -- Campo opcional (pode ser NULL)
+    telefone TEXT,
+    endereco TEXT,
     data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CRIAÇÃO DA TABELA DOACAO
+CREATE TABLE doacao (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER NOT NULL,
+    titulo TEXT NOT NULL,
+    descricao TEXT,
+    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuario (id)
+);
+
+-- CRIAÇÃO DA TABELA BRINQUEDO
+CREATE TABLE brinquedo (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    doacao_id INTEGER NOT NULL,
+    nome TEXT NOT NULL,
+    descricao TEXT,
+    foto_url TEXT,
+    quantidade_ofertada INTEGER DEFAULT 1,
+    categoria TEXT,
+    FOREIGN KEY (doacao_id) REFERENCES doacao (id)
 );
